@@ -167,23 +167,7 @@ Open `index.html` in your browser.
 
 ---
 
-## 📸 Screenshots
 
-> Add gameplay screenshots here for maximum impact.
-
-### Main Menu
-
-![Main Menu](screenshots/menu.png)
-
-### Gameplay
-
-![Gameplay](screenshots/gameplay.png)
-
-### Enemy AI
-
-![Enemy AI](screenshots/ai.png)
-
----
 
 ## 🔮 Future Roadmap
 
