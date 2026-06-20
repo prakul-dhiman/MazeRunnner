@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="MazeBreaker: Shadow Protocol — A stealth-survival maze game with procedural generation, intelligent AI, and dynamic gameplay.">
+    <meta name="keywords" content="maze game, stealth game, procedural generation, HTML5 Canvas, indie game">
+    <meta name="author" content="Prakul Dhiman">
+    <title>MazeBreaker: Shadow Protocol</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="game-container">
+        <!-- Layered canvases for rendering pipeline -->
+        <canvas id="bg-canvas"></canvas>
+        <canvas id="game-canvas"></canvas>
+        <canvas id="fog-canvas"></canvas>
+        <canvas id="ui-canvas"></canvas>
+
+        <!-- UI Overlay Layer (HTML-based menus) -->
+        <div id="ui-overlay">
+            <!-- Main Menu -->
+            <div id="main-menu" class="ui-screen active">
+                <div class="menu-background"></div>
+                <div class="menu-content">
+                    <div class="title-container">
+                        <h1 class="game-title glitch" data-text="MAZEBREAKER">MAZEBREAKER</h1>
+                        <p class="game-subtitle">SHADOW PROTOCOL</p>
+                    </div>
+                    <nav class="menu-nav">
+                        <button id="btn-new-game" class="menu-btn primary">
+                            <span class="btn-icon">▶</span>
+                            <span class="btn-text">NEW GAME</span>
+                        </button>
+                        <button id="btn-continue" class="menu-btn">
+                            <span class="btn-icon">↻</span>
+                            <span class="btn-text">CONTINUE</span>
+                        </button>
+                        <button id="btn-shop" class="menu-btn">
+                            <span class="btn-icon">⬡</span>
+                            <span class="btn-text">UPGRADES</span>
+                        </button>
+                        <button id="btn-achievements" class="menu-btn">
+                            <span class="btn-icon">★</span>
+                            <span class="btn-text">ACHIEVEMENTS</span>
+                        </button>
+                        <button id="btn-leaderboard" class="menu-btn">
+                            <span class="btn-icon">⊞</span>
+                            <span class="btn-text">LEADERBOARD</span>
+                        </button>
+                        <button id="btn-settings" class="menu-btn">
+                            <span class="btn-icon">⚙</span>
+                            <span class="btn-text">SETTINGS</span>
+                        </button>
+                    </nav>
+                    <p class="version-tag">v1.0.0 — The Architect Awaits</p>
+                </div>
+            </div>
+
+            <!-- Pause Menu -->
+            <div id="pause-menu" class="ui-screen overlay">
+                <div class="overlay-backdrop"></div>
+                <div class="panel">
+                    <h2 class="panel-title">SYSTEM PAUSED</h2>
+                    <div class="panel-buttons">
+                        <button id="btn-resume" class="menu-btn primary">RESUME</button>
+                        <button id="btn-pause-settings" class="menu-btn">SETTINGS</button>
+                        <button id="btn-quit" class="menu-btn danger">QUIT TO MENU</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings -->
+            <div id="settings-menu" class="ui-screen overlay">
+                <div class="overlay-backdrop"></div>
+                <div class="panel wide">
+                    <h2 class="panel-title">CONFIGURATION</h2>
+                    <div class="settings-grid">
+                        <div class="setting-row">
+                            <label>Master Volume</label>
+                            <input type="range" id="vol-master" min="0" max="100" value="70" class="slider">
+                            <span class="slider-value" id="vol-master-val">70%</span>
+                        </div>
+                        <div class="setting-row">
+                            <label>Music Volume</label>
+                            <input type="range" id="vol-music" min="0" max="100" value="50" class="slider">
+                            <span class="slider-value" id="vol-music-val">50%</span>
+                        </div>
+                        <div class="setting-row">
+                            <label>SFX Volume</label>
+                            <input type="range" id="vol-sfx" min="0" max="100" value="80" class="slider">
+                            <span class="slider-value" id="vol-sfx-val">80%</span>
+                        </div>
+                    </div>
+                    <div class="controls-info">
+                        <h3>CONTROLS</h3>
+                        <div class="key-grid">
+                            <div class="key-item"><kbd>W A S D</kbd> Move</div>
+                            <div class="key-item"><kbd>SHIFT</kbd> Sprint</div>
+                            <div class="key-item"><kbd>1-5</kbd> Abilities</div>
+                            <div class="key-item"><kbd>ESC</kbd> Pause</div>
+                        </div>
+                    </div>
+                    <button id="btn-settings-back" class="menu-btn">BACK</button>
+                </div>
+            </div>
+
+            <!-- Game Over -->
+            <div id="gameover-screen" class="ui-screen overlay">
+                <div class="overlay-backdrop red"></div>
+                <div class="panel">
+                    <h2 class="panel-title danger-text">SYSTEM BREACH</h2>
+                    <p class="panel-subtitle">The Architect has claimed you.</p>
+                    <div class="stats-grid" id="gameover-stats"></div>
+                    <div class="panel-buttons">
+                        <button id="btn-retry" class="menu-btn primary">RETRY</button>
+                        <button id="btn-gameover-menu" class="menu-btn">MAIN MENU</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Level Complete -->
+            <div id="level-complete" class="ui-screen overlay">
+                <div class="overlay-backdrop green"></div>
+                <div class="panel wide">
+                    <h2 class="panel-title success-text">SECTOR CLEARED</h2>
+                    <div class="star-rating" id="star-rating"></div>
+                    <div class="stats-grid" id="level-stats"></div>
+                    <div class="rewards-section" id="rewards-section"></div>
+                    <div class="panel-buttons">
+                        <button id="btn-next-level" class="menu-btn primary">NEXT SECTOR</button>
+                        <button id="btn-level-shop" class="menu-btn">UPGRADES</button>
+                        <button id="btn-level-menu" class="menu-btn">MAIN MENU</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Shop -->
+            <div id="shop-screen" class="ui-screen">
+                <div class="shop-container">
+                    <div class="shop-header">
+                        <h2 class="panel-title">UPGRADE TERMINAL</h2>
+                        <div class="coin-display">
+                            <span class="coin-icon">◈</span>
+                            <span id="shop-coins">0</span>
+                        </div>
+                    </div>
+                    <div class="shop-tabs" id="shop-tabs">
+                        <button class="tab-btn active" data-tab="mobility">Mobility</button>
+                        <button class="tab-btn" data-tab="stealth">Stealth</button>
+                        <button class="tab-btn" data-tab="vision">Vision</button>
+                        <button class="tab-btn" data-tab="power">Power</button>
+                        <button class="tab-btn" data-tab="survival">Survival</button>
+                    </div>
+                    <div class="shop-items" id="shop-items"></div>
+                    <button id="btn-shop-back" class="menu-btn">BACK</button>
+                </div>
+            </div>
+
+            <!-- Achievements -->
+            <div id="achievements-screen" class="ui-screen">
+                <div class="achievements-container">
+                    <h2 class="panel-title">ACHIEVEMENT LOG</h2>
+                    <div class="achievement-grid" id="achievement-grid"></div>
+                    <button id="btn-achievements-back" class="menu-btn">BACK</button>
+                </div>
+            </div>
+
+            <!-- Leaderboard -->
+            <div id="leaderboard-screen" class="ui-screen">
+                <div class="leaderboard-container">
+                    <h2 class="panel-title">OPERATION RECORDS</h2>
+                    <div class="leaderboard-list" id="leaderboard-list"></div>
+                    <button id="btn-leaderboard-back" class="menu-btn">BACK</button>
+                </div>
+            </div>
+
+            <!-- Achievement Toast -->
+            <div id="achievement-toast" class="toast">
+                <div class="toast-icon">★</div>
+                <div class="toast-content">
+                    <span class="toast-title">Achievement Unlocked</span>
+                    <span class="toast-name" id="toast-name"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="src/main.js"></script>
+</body>
+</html>
